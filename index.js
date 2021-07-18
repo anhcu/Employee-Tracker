@@ -1,12 +1,3 @@
-
-//Update employee managers
-
-//-View employees by manager
-
-//Delete departments, roles, and employees
-
-//View the total utilized budget of a department -- ie the combined salaries of all employees in that department
-
 const inquirer = require('inquirer');
 const mysql = require('mysql');
 const consoleTable = require('console.table');
@@ -17,6 +8,143 @@ const connection = mysql.createConnection({
   user: 'root',
   database: 'employees'
 });
+
+const init = () => {
+  inquirer.prompt([
+    { 
+      type: "rawlist",
+      choices: [
+        "Add Employee",
+        "View All Employees",
+        "Add Role",
+        "View All Roles",
+        "Add Department",
+        "View All Departments",
+        "Update Employee Role",
+        "Update Employee Manager",
+        "View All Employees By Manager",      
+        "Remove Employee",
+        "Remove Department",
+        "Remove Role",
+        "View Total Utilized Budget By Department",
+        "Exit"
+      ],
+      message: "What do you like to do?",
+      name: "option"
+    }
+  ]).then((answer) => {
+
+      // switch cases for each user answer
+      switch(answer.option) {
+          case "Add Department": {
+          return addDepartment();
+          }
+          case "Add Role": {
+          return addRole();
+          }
+          case "Add Employee": {
+          return addEmployee();
+          }
+          case "View All Departments": {
+          return allDepartment();
+          }
+          case "View All Roles": {
+          return allRoles();
+          }
+          case "View All Employees": {
+          return allEmployee();
+          }
+          case "Update Employee Role": {
+          return updateRole();
+          }
+          case "Update Employee Manager": {
+          return updateManager();
+          }          
+          // case "View All Employees By Department": {
+          // return employeeByDeparment();
+          // }
+          case "View All Employees By Manager": {
+          return employeeByManager();
+          }
+          case "Remove Employee": {
+          return removeEmployee();
+          }
+          case "Remove Department": {
+          return removeDepartment();
+          }
+          case "Remove Role": {
+          return removeRole();
+          }
+          case "View Total Utilized Budget By Department": {
+          return departmentBudget();
+          }
+          default: {
+          return process.exit();
+          }
+        }
+      });
+}
+
+
+const departmentBudget= () => {
+  inquirer.prompt([
+    {
+      message: "What is the Department number?",
+      name: "id",
+      validate: validateNumber,
+    }
+  ]).then(answer => {
+    const query = `
+    SELECT d.id as Department_ID, d.name as Department_Name, SUM(r.salary) as Total_utilized_budget 
+    FROM role r
+    inner join employee e on r.id = e.role_id
+    inner join department d on r.department_id = d.id
+    where r.department_id = ${answer.id}
+    group by d.id, d.name
+    `    
+    connection.query(query, function (err, res) {
+      if (err) throw err;
+      console.table(res);
+      init()
+    })
+  });
+}
+
+const removeEmployee = () => {
+  inquirer.prompt([
+    {
+      message: "What is the Employee number?",
+      name: "id",
+      validate: validateNumber,
+    }
+  ]).then(answer => {
+    deleteidFromTable(answer.id, 'employee')
+  });;
+}
+
+const removeDepartment = () => {
+  inquirer.prompt([
+    {
+      message: "What is the department number?",
+      name: "id",
+      validate: validateNumber,
+    }
+  ]).then(answer => {
+    deleteidFromTable(answer.id, 'department')
+  });;
+}
+
+const removeRole = () => {
+  inquirer.prompt([
+    {
+      message: "What is the role number?",
+      name: "id",
+      validate: validateNumber,
+    }
+  ]).then(answer => {
+    deleteidFromTable(answer.id, 'role')
+  });;
+}
 
 //table department
 const allDepartment = () => {
@@ -64,23 +192,50 @@ const allEmployee = () => {
   })
 }
 
+const employeeByManager = (managerID) => {
+  inquirer.prompt([
+    {
+      message: "what's the manager ID number?",
+      name: "manager_id",
+      validate: validateNumber,
+    }
+  ]).then(answer => {
+    connection.query(`SELECT * FROM employee where manager_id = ${answer.manager_id}`, function (err, res) {
+      if (err) throw err;
+      console.table('employee', res);
+      init()
+    })
+  });
+}
+
+function deleteidFromTable(id, tableName) {
+  const query = `DELETE FROM ${tableName} WHERE id = ${id}`;
+  connection.query(query, function (err, res) {
+    if (err) throw err;
+    console.table(tableName);
+    init()
+  }) 
+};
+
 const addEmployee = () => {
   inquirer.prompt([
     {
-      message: "What is your employee first name?",
+      message: "What is the first name?",
       name: "first_name"
     },
     {
-      message: "What is your employee last name?",
+      message: "What is the last name?",
       name: "last_name"
     },
     {
-      message: "What are you role ID number?",
-      name: "role_id"    
+      message: "What is the role ID number?",
+      name: "role_id",
+      validate: validateNumber,
     },
     {
-      message: "what's your manager ID number?",
-      name: "manager_id"
+      message: "what is the manager ID number?",
+      name: "manager_id",
+      validate: validateNumber,
     }
   ]).then(answer => {
     // console.log('ANSWER');
@@ -97,14 +252,6 @@ const allRoles = () => {
   })
 }
 
-const createrole = (data) => {
-  connection.query('INSERT INTO role SET?', data, (err, res) => {
-    if (err) throw err;
-    console.log("Employee role was successfully added!")
-    init();
-  });
-}
-
 const addRole = () => {
   inquirer.prompt([
     {
@@ -113,15 +260,20 @@ const addRole = () => {
     },
     {
       message: "Enter your salary",
-      name: "salary"
+      name: "salary",
+      validate: validateNumber,
     },
     {
       message: "Whats your department",
-      name: "department_id"
+      name: "department_id",
+      validate: validateNumber,
     }
-  ]).then(answer => {
-    // console.log('ANSWER');
-    createrole(answer);
+  ]).then(data => {
+    connection.query('INSERT INTO role SET?', data, (err, res) => {
+      if (err) throw err;
+      console.log("Role was successfully added!")
+      init();
+    });
   });
 }
 
@@ -131,12 +283,14 @@ const updateRole = () => {
     {
       name: 'employeeId',
       type: 'number',
-      message: 'Enter employee Id number'
+      message: 'Enter employee Id number',
+      validate: validateNumber
     },
     {
       name: 'newRole',
       type: 'number',
-      message: 'Enter new role Id number'
+      message: 'Enter new role Id number',
+      validate: validateNumber,
     },
   ])
 
@@ -150,93 +304,40 @@ const updateRole = () => {
 });
 }
 
-//	id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-// first_name VARCHAR(30),
-// last_name VARCHAR(30), 
-// role_id INT,  
-// manager_id INT
-
-const init = () => {
+const updateManager = () => {
   inquirer.prompt([
-    { 
-      type: "rawlist",
-      choices: [
-        "Add Employee",
-        "View All Employees",
-        "Add Role",
-        "View All Roles",
-        "Add Department",
-        "View All Departments",
-        "Update Employee Role",
-        // "View All Employees By Department",
-        // "View All Employees By Manager",      
-        // "Remove Employee",
-        // "Update Employee Manager",
-        // "Remove Department",
-        // "Remove Role",
-        // "View Total Utilized Budget By Department",
-        "Exit"
-      ],
-      message: "What do you like to do?",
-      name: "option"
-    }
-  ]).then((answer) => {
+    {
+      name: 'employeeId',
+      type: 'number',
+      message: 'Enter employee Id number',
+      validate: validateNumber
+    },
+    {
+      name: 'managerID',
+      type: 'number',
+      message: 'Enter manager Id number',
+      validate: validateNumber,
+    },
+  ])
 
-      // switch cases for each user answer
-      switch(answer.option) {
-          case "Add Department": {
-          return addDepartment();
-          }
-          case "Add Role": {
-          return addRole();
-          }
-          case "Add Employee": {
-          return addEmployee();
-          }
-          case "View All Departments": {
-          return allDepartment();
-          }
-          case "View All Roles": {
-          return allRoles();
-          }
-          case "View All Employees": {
-          return allEmployee();
-          }
-          case "Update Employee Role": {
-          return updateRole();
-          }
-          // case "View All Employees By Department": {
-          // return employeeByDeparment();
-          // }
-          // case "View All Employees By Manager": {
-          // return employeeByManager();
-          // }
-          // case "Remove Employee": {
-          // return removeEmployee();
-          // }
-          // case "Update Employee Manager": {
-          // return updateManger();
-          // }
-          // case "Remove Department": {
-          // return removeDepartment();
-          // }
-          // case "Remove Role": {
-          // return removeRole();
-          // }
-          // case "View Total Utilized Budget By Department": {
-          // return departmentBudget();
-          // }
-          default: {
-          return process.exit();
-          }
-        }
-      });
+.then((answer) => {
+    connection.query(
+        `UPDATE employee SET manager_id = ${answer.managerID} WHERE id = ${answer.employeeId}`, (err, data) => {
+            if (err) throw err;
+            console.log('Employee Manager updated');
+            init();
+        });
+});
 }
-
-
 
 connection.connect((err) => {
   if (err) throw err;
   console.log(`connected as id ${connection.threadId}`);
   init();
 });
+
+
+const validateNumber = number => {
+  const reg = /^\d+$/;
+  return reg.test(number) || "Please enter a number.";
+}
