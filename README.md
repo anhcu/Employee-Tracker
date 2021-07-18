@@ -1,10 +1,40 @@
 # Employee-Tracker
+[Github](https://github.com/anhcu/Employee-Tracker) <br>
+[Video Demonstrating](#)
+
+# Table of Contents
+* [License](#License)
+* [Description](#Description)
+* [Criteria](#Criteria)
+* [Contact](#Contact)
+* [Mock](#Mock) 
+<!-- # License
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) -->
+
+# Description
+This application is designed for a  non developer who needs an app where they can add or view departments, roles and employees with ease.  In return, if they need to update any employee’s information, it's only a few clicks away.
 
 
+# Install
+* [MySQL](https://www.npmjs.com/package/mysql)
+* [InquirerJs](https://www.npmjs.com/package/inquirer/v/0.2.3)
+* [console.table](https://www.npmjs.com/package/console.table)
+
+<!-- # Instructions
+- [x] GIVEN a employee-tracker application
+- [x] WHEN I open the employee-tracker
 
 
+- First, pull the repo from Github and install MySql, InquirerJs and console.table.
+- Second, go to your terminal and run node start. 
+- You'll be prompt with series of questions. 
+- - Add departments, roles, employees.
+- Last, your'll be able to view and updates any employees. -->
 
-# Unit 12 MySQL Homework: Employee Tracker
+# Contact
+  If you have any question or would like to reach out plase [email](mailto:anhcu714@gmail.com).
+
+<!-- # Unit 12 MySQL Homework: Employee Tracker
 
 Developers are often tasked with creating interfaces that make it easy for non-developers to view and interact with information stored in databases. Often these interfaces are known as **C**ontent **M**anagement **S**ystems. In this homework assignment, your challenge is to architect and build a solution for managing a company's employees using node, inquirer, and MySQL.
 
@@ -142,4 +172,4 @@ You are required to submit the following:
 * A video demonstrating the entirety of the app's functionality 
 
 - - -
-© 2021 Trilogy Education Services, LLC, a 2U, Inc. brand. Confidential and Proprietary. All Rights Reserved.
+© 2021 Trilogy Education Services, LLC, a 2U, Inc. brand. Confidential and Proprietary. All Rights Reserved. -->

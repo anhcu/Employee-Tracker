@@ -1,6 +1,13 @@
 const db = require ('./db')
-const { prompt } = require ('inquirer')
-require('console.table')
+const inquirer = require('inquirer');
+const mysql = require('mysql');
+const consoleTable = require('console.table');
+
+
+
+// const db = require ('./db')
+// const { prompt } = require ('inquirer')
+// require('console.table')
 
 start();
 //start()
