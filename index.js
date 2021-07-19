@@ -199,7 +199,8 @@ const employeeByManager = (managerID) => {
       name: "manager_id",
       validate: validateNumber,
     }
-  ]).then(answer => {
+  ])
+  .then(answer => {
     connection.query(`SELECT * FROM employee where manager_id = ${answer.manager_id}`, function (err, res) {
       if (err) throw err;
       console.table('employee', res);
